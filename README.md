@@ -46,14 +46,14 @@ def fizzbuzz_rules0():
   action (and returns its return value) only if the condition evaluates to True. It otherwise
   raises an NoActionException. A Rule therfore implements the AbstractAction
   interface.
-  E.g.:```python Rule(divisible_by(3), value("Buzz"))```
+  E.g.:```Rule(divisible_by(3), value("Buzz"))```
 * *combinators*: combinators are in the module ruleta.combinators. They are
   not by default exported from ruleta.
   * *ALL,AND*: ALL takes an arbitrary number of conditions and returns a
     condition which evaluates only to True if all passed conditions evaluate
     to True. AND is a convenient shorthand for ALL with exactly two
     conditions.
-	E.g.:```python Rule(AND(divisible_by(3),divisible_by(5)), value("FizzBuzz"))```
+	E.g.:```Rule(AND(divisible_by(3),divisible_by(5)), value("FizzBuzz"))```
   * *ANY,OR*: ANY takes an arbitrary number of conditions and returns a
     condition which evaluates  to True if at least one passed conditions evaluates
     to True. OR is a convenient shorthand for ANY with exactly two
@@ -66,7 +66,7 @@ def fizzbuzz_rules0():
     type) and applies them sequentially. (The output of the first is fed to
     the second and so on...). User should keep the actions independent and not
     rely on the order of application.
-	E.g. ```python ALSO(set_quality(80),set_quality_change(0))```
+	E.g. ```ALSO(set_quality(80),set_quality_change(0))```
 	
 * *Actionsets*: An actionset is a set of actions (Duh!) with a specific
   relation.
@@ -74,10 +74,10 @@ def fizzbuzz_rules0():
   actionset.
   *Note2*: action sets can currently not be mixed (except the default
   Actionset, which is compatible with any specialization). (otherwise the semantics
-  were unclear) E.g. ```python Actionset(...).or_(...).but_(...) #!raises ActionsetBuildError```
+  were unclear) E.g. ``` Actionset(...).or_(...).but_(...) #!raises ActionsetBuildError```
   * *Actionset*: Actionset simply executes its action. It implements an
     the same interface as the wrapped action.
-	E.g. ```python Actionset(stringify) ```
+	E.g. ``` Actionset(stringify) ```
   * *ActionWithExceptions* ActionWithExceptions is normally
 	created by adding another action via the ```.but_()``` method.
 	The default action (from the Actionset constructor) is only executed if
