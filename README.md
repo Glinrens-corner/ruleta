@@ -7,7 +7,7 @@ Ruletas main goal is to make your rule definitions as close to the nested list
 of rules that hopefully is your spec with a minimum amount of clutter.
 
 
-E.g.:
+E.g.[(ruleta/examples/fizzbuzz.py)](https://github.com/Glinrens-corner/ruleta/blob/master/ruleta/examples/fizzbuzz.py):
 ```python
 def fizzbuzz_rules0():
     """
