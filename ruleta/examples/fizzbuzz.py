@@ -3,18 +3,29 @@ from ruleta import Rule, Actionset
 from ruleta.combinators import AND
 
 
-
+# This is formally an action factory. It factories an action ;).
+# The action ignores the input_ and replaces it with the preconfigured value.
+# E.g.: 
+# replace_with_fizz = value("Fizz")
+# replace_with_fizz(3) == "Fizz"
 def value(val):
     return lambda input_: val
 
+# This is formally an condition factory. It builds a condition.
+# The condition checks if the input is divisible by the preconfigured value.
+# E.g.: 
+# divisible_by_3 = divisible_by(3)
+# divisible_by_3(99) == True
 def divisible_by(val):
     return lambda input_: input_%val == 0
 
+#another action
+#an action should have an actiony name
 stringify = str
 
 
 
-
+#Three different ways to formulate the fizzbuzz rules:
 
 
 def fizzbuzz_rules0():
