@@ -23,8 +23,8 @@ class TestRule(ut.TestCase ):
         # with these memebers the actual input is irrelevant
         input_ = object()
         
-        self.assertEqual(new_rule.condition(input_), True)
-        self.assertEqual(new_rule.action(input_), 42)
+        self.assertEqual(new_rule.if_(input_), True)
+        self.assertEqual(new_rule.then_(input_), 42)
         
     def test_immutability(self):
         "A Rule is immutable"
@@ -32,9 +32,9 @@ class TestRule(ut.TestCase ):
         new_rule = Rule(true, value(42))
         
         with self.assertRaises(AttributeError):
-            new_rule.condition = false
+            new_rule.if_ = false
         with self.assertRaises(AttributeError):
-            new_rule.action = value(43)
+            new_rule.then_ = value(43)
 
     def test_iaction_1(self):
         "if the condition holds for the input, the action is applied to the input"
@@ -43,7 +43,7 @@ class TestRule(ut.TestCase ):
 
         input_ = object()
 
-        self.assertEquals(new_rule(input_), 42)
+        self.assertEqual(new_rule(input_), 42)
 
 
     def test_iaction_2(self):
