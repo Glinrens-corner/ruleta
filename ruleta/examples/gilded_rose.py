@@ -83,7 +83,7 @@ def compare_quality(condition ):
 backstage_pass_rules = Actionset(set_quality_change(+1))\
                            .but_(Rule( days_until_sellby(leq(10) ), set_quality_change(+2)))\
                            .but_(Rule( days_until_sellby(leq(5) ), set_quality_change(+3)))\
-                           .but_(Rule( sellby_date_passed, ALSO(set_quality(0), set_quality_change(0)) ))
+                           .but_(Rule( sellby_date_passed, ALSO(set_quality(0),set_quality_change(0))))
 
 
 basic_degradiation_rules= Actionset(set_quality_change(-1))\
@@ -118,7 +118,7 @@ class GildedRose:
         item_record = extended_degradiation_rules(
             ItemRecord( item.name, item.quality, 0, item.sellin) )
         item_record = bracketing_rules( item_record._replace(quality=item_record.quality+item_record.quality_change ) )
-        return Item(item_record.name, item_record.sellin-1, item_record.quality)
+        return Item(item_record.name, max(item_record.sellin-1,0), item_record.quality)
 
 
 class Item:
@@ -138,3 +138,39 @@ class TestGildedRose(ut.TestCase):
         gilded_rose.update_quality( )
 
         self.assertEqual( ["a Sword, 99, 4"], list(map(repr,gilded_rose._items)))
+
+    def test_conjured_item(self):
+        gilded_rose = GildedRose([Item("conjured Sword", 100, 5)])
+
+        gilded_rose.update_quality( )
+
+        self.assertEqual( ["conjured Sword, 99, 3"], list(map(repr,gilded_rose._items)))
+
+    def test_minimum_quality(self):
+        gilded_rose = GildedRose([Item("a Sword", 100, 0)])
+
+        gilded_rose.update_quality( )
+
+        self.assertEqual( ["a Sword, 99, 0"], list(map(repr,gilded_rose._items)))
+
+    def test_backstage_passes_10_days(self):
+        gilded_rose = GildedRose([Item("Backstage passes", 10, 5)])
+
+        gilded_rose.update_quality( )
+
+        self.assertEqual( ["Backstage passes, 9, 7"], list(map(repr,gilded_rose._items)))
+
+    def test_backstage_passes_5_days(self):
+        gilded_rose = GildedRose([Item("Backstage passes", 5, 5)])
+
+        gilded_rose.update_quality( )
+
+        self.assertEqual( ["Backstage passes, 4, 8"], list(map(repr,gilded_rose._items)))
+
+    def test_backstage_passes_0_days(self):
+        gilded_rose = GildedRose([Item("Backstage passes", 0, 5)])
+
+        gilded_rose.update_quality( )
+
+        self.assertEqual( ["Backstage passes, 0, 0"], list(map(repr,gilded_rose._items)))
+

@@ -17,7 +17,8 @@ def OR(first, second):
 
 def ALSO(*actions):
     def ALSO_(input_):
-        val = input
+        val = input_
         for action in actions:
-            val = acction(val)
+            val = action(val)
         return val
+    return ALSO_
