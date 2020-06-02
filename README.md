@@ -1,7 +1,7 @@
 # Ruleta
 
-Ruleta is a minimalist Python Rule engine based on functional programming
-ideas. 
+Ruleta is a minimalist Python Rules framework based on functional programming 
+principles.
 
 Ruletas main goal is to make your rule definitions as close to the nested list
 of rules that hopefully is your spec with a minimum amount of clutter.
@@ -13,7 +13,7 @@ def fizzbuzz_rules0():
     """
     fizzbuzz; for each number:
     - return the number as string
-    - except if the number is divisible_by 3 return "Fizz"
+    - but if the number is divisible_by 3 return "Fizz"
     - but if the number is divisible_by 5 return "Buzz"
     - but if the number is divisible_by 3 and 5 return "FizzBuzz"
     """  
