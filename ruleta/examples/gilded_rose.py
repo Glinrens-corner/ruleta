@@ -20,7 +20,7 @@
 """
 from collections import namedtuple
 import unittest as ut
-from ruleta import Rule, Actionset
+from ruleta import Rule, ActionSet
 from ruleta.combinators import ALSO
 import re
 
@@ -80,28 +80,28 @@ def compare_quality(condition ):
 
 # Rulesets 
 
-backstage_pass_rules = Actionset(set_quality_change(+1))\
-                           .but_(Rule( days_until_sellby(leq(10) ), set_quality_change(+2)))\
-                           .but_(Rule( days_until_sellby(leq(5) ), set_quality_change(+3)))\
-                           .but_(Rule( sellby_date_passed, ALSO(set_quality(0),set_quality_change(0))))
+backstage_pass_rules = ActionSet(set_quality_change(+1))\
+                           .but(Rule( days_until_sellby(leq(10) ), set_quality_change(+2)))\
+                           .but(Rule( days_until_sellby(leq(5) ), set_quality_change(+3)))\
+                           .but(Rule( sellby_date_passed, ALSO(set_quality(0),set_quality_change(0))))
 
 
-basic_degradiation_rules= Actionset(set_quality_change(-1))\
-                             .also_(Rule(sellby_date_passed, double_degradation))\
-                             .also_(Rule(is_item_conjured, double_degradation))
+basic_degradiation_rules= ActionSet(set_quality_change(-1))\
+                             .also(Rule(sellby_date_passed, double_degradation))\
+                             .also(Rule(is_item_conjured, double_degradation))
 
-extended_degradiation_rules = Actionset(basic_degradiation_rules)\
-                                  .but_(Rule(is_aged_brie, set_quality_change(+1)) )\
-                                  .but_(Rule(is_sulfuras, set_quality_change(0)))\
-                                  .but_(Rule( is_backstage_passes, backstage_pass_rules ))
-
-
+extended_degradiation_rules = ActionSet(basic_degradiation_rules)\
+                                  .but(Rule(is_aged_brie, set_quality_change(+1)) )\
+                                  .but(Rule(is_sulfuras, set_quality_change(0)))\
+                                  .but(Rule( is_backstage_passes, backstage_pass_rules ))
 
 
-bracketing_rules = Actionset(do_nothing)\
-                       .but_(Rule(compare_quality(leq(0)), set_quality(0)))\
-                       .but_(Actionset(Rule(compare_quality(geq(50) ), set_quality(50)))
-                                 .but_(Rule(is_sulfuras, set_quality(80))))
+
+
+bracketing_rules = ActionSet(do_nothing)\
+                       .but(Rule(compare_quality(leq(0)), set_quality(0)))\
+                       .but(ActionSet(Rule(compare_quality(geq(50) ), set_quality(50)))
+                                 .but(Rule(is_sulfuras, set_quality(80))))
                                        
 
 

@@ -1,89 +1,128 @@
-from .exceptions import NoActionException
+from .exceptions import NoActionException,ActionSetBuildError
+from collections import namedtuple
 
-class Actionset:
-    def __init__(self, action):
-        self._action = action
+
+
+ActionRecord = namedtuple("ActionRecord", ["conjunction", "action"] )
+
+class IEvaluator:
+    def __init__(self):
+        self.all_conjunctions = []
+
+    def accept(self, action_records, new_action_record):
+        pass
+
+    def evaluate(self, action_records, input_):
+        pass
+
+
+
+class Evaluator(IEvaluator):
+    _accepted_combinations = [ ("","but"),
+                               ("","otherwise"),
+                               ("","also"),
+                               ("but","but"),
+                               ("otherwise","otherwise"),
+                               ("also", "also")]
+    def __init__(self):
+        self.accepted_conjunctions = ["","but","otherwise","also"]
+    def accept(self, action_records, new_action_record):
         
-    def but_(self, action):
-        return ActionWithExceptions(self._action, [action])
-
-    def also_(self, action):
-        return ChainedActions([self._action,action])
-
-    def or_(self, action):
-        return AlternativeActions([self._action, action])
-
-    def __call__(self, input_):
-        return self._action(input_)
-
-class ActionWithExceptions:
-    def __init__(self, default_action, exceptions):
-        self._default_action = default_action
-        self._exceptions = exceptions
-
-    def but_(self, exception):
-        return ActionWithExceptions(self._default_action,
-                                    self._exceptions+ [exception])
-    
-    def also_(self, action):
-        raise ActionsetBuildError("cannot chain a chained action (also_) after an exception (but_)")
-
-    def or_(self, action):
-        raise ActionsetBuildError("cannot chain an alternative action (or_) after an exception (but_)")
-
-    def __call__(self, input_):
-        for exception in reversed(self._exceptions):
-            try:
-                ret = exception(input_)
-            except NoActionException:
-                pass
+        if len(action_records) == 0:
+            if new_action_record.conjunction == "":
+                return None
             else:
-                return ret
-        return self._default_action(input_)
+                return "Control-flow shouldn't reach here??"
+        if (action_records[-1].conjunction, new_action_record.conjunction) in self._accepted_combinations:
+            return None
+        else:
+            return "{0} cannot come after {1}".format(new_action_record.conjunction, action_records[-1].conjunction )
 
-class ChainedActions:
-    def __init__(self, actions):
-        self._actions = actions
-
-    def but_(self, action):
-        raise ActionsetBuildError("cannot chain an exception (but_) after a chained action (also_)")
-
-    def also_(self, action):
-        return ChainedActions(self._actions+[action ])
-
-    def or_(self, action):
-        raise ActionsetBuildError("cannot chain an alternative action (or_) after an chained action (also_)")
-
-    def __call__(self, input_):
-        val = input_
-        for action in self._actions:
-            try:
-                val = action(val)
-            except NoActionException:
-                pass
-        return val
-
-    
-
-class AlternativeActions:
-    def __init__(self, actions):
-        self._actions = actions
-
-    def but_(self, exception):
-        raise ActionsetBuildError("cannot chain an exception (also_) after an alternative action (or_)")
-    
-    def also_(self, action):
-        raise ActionsetBuildError("cannot chain a chained action (also_) after an alternative_ action)")
-
-    def or_(self, action):
-        return AlternativeActions(self._actions + [action])
-
-    def __call__(self, input_):
-        for action in self._actions:
-            try:
-                ret = action(input_)
-            except NoActionException:
-                pass
+    def evaluate(self, action_records, input_):
+        assert (len(action_records)>0)
+        if action_records[-1].conjunction == "":
+            assert(len(action_records)==1)
+            return action_records[-1].action(input_)
+        elif action_records[-1].conjunction == "but":
+            assert all( [record.conjunction == "but" for record in action_records[1:] ])
+            assert action_records[0].conjunction ==""
+            for action_record in reversed(action_records):
+                try:
+                    return action_record.action(input_)
+                except NoActionException:
+                    pass
             else:
+                raise NoActionException()
+        elif action_records[-1].conjunction == "also":
+            assert all( [record.conjunction == "also" for record in action_records[1:] ])
+            assert action_records[0].conjunction ==""
+            ret = input_
+            performed_action = False
+            for action_record in action_records:
+                try:
+                    
+                    ret = action_record.action(ret )
+                except NoActionException:
+                    pass
+                else:
+                    performed_action = True
+            if performed_action:
                 return ret
-        raise NoActionException()
+            else:
+                raise NoActionException()
+        elif action_records[-1].conjunction == "otherwise":
+            assert all( [record.conjunction == "otherwise" for record in action_records[1:] ])
+            assert action_records[0].conjunction ==""
+            for action_record in action_records:
+                try:
+                    return action_record.action(input_)
+                except NoActionException:
+                    pass
+            else:
+                raise NoActionException()
+        else:
+            raise ActionSetBuildError("unknown Error")
+
+default_evaluator = Evaluator()
+
+class BaseActionSet:
+    def __init__(self,actions,evaluator):
+        self._actions = actions
+        self._evaluator = evaluator
+        for conjunction in filter( lambda name:name != "",
+        evaluator.accepted_conjunctions):
+            setattr(self, conjunction, _conjunction_wrapper(self, conjunction))
+
+    def __call__(self, input_):
+        return self._evaluator.evaluate(self._actions, input_)
+
+def _identity(input_):
+    return input_
+
+        
+class ActionSet (BaseActionSet):
+    
+    def __init__(self, action=_identity, evaluator=None):
+        evaluator = default_evaluator if evaluator is None else evaluator    
+        error = evaluator.accept([], ActionRecord("",action))
+        if error is not None:
+            raise ActionSetBuildError(error)
+        BaseActionSet.__init__(self,
+                               [ActionRecord("",action)],
+                               evaluator)
+
+
+
+
+
+def _conjunction_wrapper(instance, next_conjunction):
+    def conjunction(action):
+        new_record = ActionRecord(next_conjunction,action)
+        error = instance._evaluator.accept(instance._actions, new_record)
+        if error is not None:
+            raise ActionSetBuildError(error)
+        return BaseActionSet(instance._actions+[new_record],
+                                        instance._evaluator)
+    return conjunction
+
+

@@ -1,5 +1,5 @@
 import unittest as ut
-from ruleta import Rule, Actionset
+from ruleta import Rule, ActionSet
 from ruleta.combinators import AND
 
 
@@ -36,10 +36,10 @@ def fizzbuzz_rules0():
     - but if the number is divisible_by 5 return "Buzz"
     - but if the number is divisible_by 3 and 5 return "FizzBuzz"
     """  
-    return Actionset(stringify)\
-                 .but_(Rule(divisible_by(3), value("Fizz")))\
-                 .but_(Rule(divisible_by(5), value("Buzz")))\
-                 .but_(Rule(AND(divisible_by(3),
+    return ActionSet(stringify)\
+                 .but(Rule(divisible_by(3), value("Fizz")))\
+                 .but(Rule(divisible_by(5), value("Buzz")))\
+                 .but(Rule(AND(divisible_by(3),
                                 divisible_by(5) ), value("FizzBuzz")))
 
 def fizzbuzz_rules1():
@@ -50,10 +50,10 @@ def fizzbuzz_rules1():
     - if the number is divisible_by 5 return "Buzz"
     - otherwise return the number as string
     """  
-    return Actionset(Rule(AND(divisible_by(3),divisible_by(5) ), value("FizzBuzz")))\
-        .or_(Rule(divisible_by(3), value("Fizz")) )\
-        .or_(Rule(divisible_by(5), value("Buzz")))\
-        .or_(stringify)
+    return ActionSet(Rule(AND(divisible_by(3),divisible_by(5) ), value("FizzBuzz")))\
+        .otherwise(Rule(divisible_by(3), value("Fizz")) )\
+        .otherwise(Rule(divisible_by(5), value("Buzz")))\
+        .otherwise(stringify)
 
 def fizzbuzz_rules2():
     """
@@ -64,10 +64,10 @@ def fizzbuzz_rules2():
     - if the number is divisible_by 5 return "Buzz"
     - otherwise return the number as string
     """  
-    return Actionset(Rule(divisible_by(3), Actionset(Rule(divisible_by(5), value("FizzBuzz")))
-                                                    .or_(value("Fizz"))))\
-                     .or_(Rule(divisible_by(5), value("Buzz")))\
-                     .or_(stringify)
+    return ActionSet(Rule(divisible_by(3), ActionSet(Rule(divisible_by(5), value("FizzBuzz")))
+                                                    .otherwise(value("Fizz"))))\
+                     .otherwise(Rule(divisible_by(5), value("Buzz")))\
+                     .otherwise(stringify)
 
 if __name__ == "__main__":
     fizzbuzz = fizzbuzz_rules0()

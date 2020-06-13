@@ -18,9 +18,9 @@ def fizzbuzz_rules0():
     - but if the number is divisible_by 3 and 5 return "FizzBuzz"
     """  
     return Actionset(stringify)\
-                 .but_(Rule(divisible_by(3), value("Fizz")))\
-                 .but_(Rule(divisible_by(5), value("Buzz")))\
-                 .but_(Rule(AND(divisible_by(3),
+                 .but(Rule(divisible_by(3), value("Fizz")))\
+                 .but(Rule(divisible_by(5), value("Buzz")))\
+                 .but(Rule(AND(divisible_by(3),
                                 divisible_by(5) ), value("FizzBuzz")))
 ```
 
@@ -39,10 +39,31 @@ def fizzbuzz_rules0():
 * *Condition*: A Condition is a callable which transforms some input into a
   bool. It is formally a subtype of UnconditionalAction this is currently
   never made use of.
+* **Advanced Interfaces**
+  * *Evaluator* The evaluator determines how action sets are evaluated.
+    if the user wants to supply it's own evaluator, it has to implement the
+    following properties and methods:
+	(note: An ActionRecord is a namedtuple with the fields conjunction (the
+    name of the conjunction as a string) and action (the AbstractAction queued
+    with this conjunction. )
+    * *allowed_conjunctions* this property is a list of strings determining
+      all possible conjunctions. (The default conjunction "" should be included)
+    * *accept(action_records, new_action_record )*: whenever a new
+      action_record is queued this method is called to determine if it is
+      accepted. if the method returns None, the record is accepted. If the
+      method returns a string the string is used as error message for the
+      RuleSetBuildError.
+	  Implementors should note that this method is called even on the firs
+      action during initialization of ActionSet. Hereby the empty string "" is
+      used as an conjunction.
+	* *evaluate(action_records, input_)*: this method is called when an
+      ActionSet is applied to an input.
+	
+
 
 **Classes and Functions**
 
-* *Rule*: A rule takes a Condition and an UnconditionalAction. It performs the
+* *Rule*: A rule takes a Condition and an AbstractAction. It performs the
   action (and returns its return value) only if the condition evaluates to True. It otherwise
   raises an NoActionException. A Rule therfore implements the AbstractAction
   interface.
@@ -70,42 +91,55 @@ def fizzbuzz_rules0():
 	
 * *Actionsets*: An actionset is a set of actions (Duh!) with a specific
   relation.
-  *Note1*: action sets are immutable. Chaining another action creates a new
-  actionset.
+  *Note1*: action sets are not changed. Chaining another action creates a new
+  actionset ( a BaseActionSet to be exact).
   *Note2*: action sets can currently not be mixed (except the default
   Actionset, which is compatible with any specialization). (otherwise the semantics
   were unclear) E.g. ``` Actionset(...).or_(...).but_(...) #!raises ActionsetBuildError```
-  * *Actionset*: Actionset simply executes its action. It implements an
-    the same interface as the wrapped action.
-	E.g. ``` Actionset(stringify) ```
-  * *ActionWithExceptions* ActionWithExceptions is normally
-	created by adding another action via the ```.but_()``` method.
-	The default action (from the Actionset constructor) is only executed if
-	all exceptions perform no action.
-    ActionWithExceptions implements an AbstractAction or
-    UnconditionalAction depending on the type of the default action.
-	**NOTE** It is assumed that later exceptions are more specific and
-    override earliers exceptions. E.g.: in the fizzbuzz_rules0 example for 15 *only*
-    the last rule is executed.
+  * *ActionSet*: Actionset simply executes its action. It implements a
+    the same interface as the wrapped action. If no Action is supplied it
+    wraps the identity action which simply returns its argument.(it doesn't
+    raise NoActionException). As second argument an evaluator can be
+    supplied. If no evaluator is supplied (or the evaluator is None, the
+    ruleta.evaluation_strategies.default\_evaluator is used.
+	It is also the basic action to which all other conjunctions are chained.
+	E.g. ``` ActionSet(stringify) ```
+	* **conjunctions** The conjunctions an action set supports and their
+      semantics are determined by the evaluator. The following are supplied by
+      the built-in evaluator. 
+	  (Note: all conjunctions (except the default conjunction "") take the
+      form of methods on the BaseActionSet
+      ```.conjunction(action)->BaseActionSet ```
+	  (Note: the build-in evaluator only allows allows conjunctions of the
+      same type to be chained. (except the default conjunction ""; all other
+      conjunctions can be chained after the default conjunction) )
+	* *but* adding another action via the ```.but(action)``` method results in
+	an exception to earlier rules.
+	E.g.: in the fizzbuzz_rules0 example for 15 *only* the last rule is executed.
 	E.g. see the examples/fizzbuzz.py
-  * *ChainedActions*:  ChainedActions is similar to the ALSO  combinator 
+  * *also*:  The also conjunction is similar to the  ALSO  combinator 
     it applies the actions in order. Each to the output of the previous
     action. 
-	Different from ALSO ChainedActions 
-    gurarantees the order of execution is first to last action and actions
+	Different from ALSO actions queued by also  
+	are  guraranted to execute from first to last and actions
     which raise an NoActionException are simply skipped (which may lead to all
     actions being skipped). 
-    It is also normally created via the ```also_``` method. 
-	ChainedActions implements the UnconditionalAction interface.
-  * *AlternativeActions*: AlternativeActions is the similar to
-    ActionWithExceptions. But the actions are tested in order until one
+	If no Action is executed an NoActionException is raised.
+	* *otherwise*: actions chained by otherwise are the similar to
+    those chained by but. But the actions are tested in order (instead of
+    reverse order) until one
     perfoms an action. Their result is returned.
+
+* *Evaluator* : Ruleta has an build-in evaluator which allows the conjunctions
+  listed above. 
+* *default_evaluator* : a usersupplied evaluator can either be supplied on a
+  per ActionSet basis or globally by setting ruleta.evaluation_strategies.default_evaluator
 * *Exceptions*:Exceptions live in ruleta.exceptions and are not exported by
   default from the ruleta package.
    * *NoActionException*: This is an exception intended for internal use.
      It indicates that an action did not actually perform an action.
      It is detected and used by several Actionset specializations.
-   * *ActionsetBuildError*: This error is thrown while *building* an
+   * *ActionSetBuildError*: This error is thrown while *building* an
      actionset. To indicate that the actionset was illegally build.
 
 	
