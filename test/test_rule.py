@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import unittest as ut
 from ruleta.rule import Rule
 from ruleta.exceptions import NoActionException
@@ -55,3 +57,6 @@ class TestRule(ut.TestCase ):
 
         with self.assertRaises(NoActionException ):
             new_rule(input)
+
+if __name__ == "__main__":
+    ut.main()

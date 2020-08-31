@@ -174,3 +174,5 @@ class TestGildedRose(ut.TestCase):
 
         self.assertEqual( ["Backstage passes, 0, 0"], list(map(repr,gilded_rose._items)))
 
+if __name__ == "__main__":
+    ut.main()

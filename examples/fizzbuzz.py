@@ -98,3 +98,6 @@ class TestFizzbuzz(ut.TestCase):
         fizzbuzz = fizzbuzz_rules2()
 
         self.assertEqual(self.expected, [ fizzbuzz(i) for i in range(1,101)])
+
+if __name__ == "__main__":
+    ut.main()
