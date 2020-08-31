@@ -39,27 +39,6 @@ def fizzbuzz_rules0():
 * *Condition*: A Condition is a callable which transforms some input into a
   bool. It is formally a subtype of UnconditionalAction this is currently
   never made use of.
-* **Advanced Interfaces**
-  * *Evaluator* The evaluator determines how action sets are evaluated.
-    if the user wants to supply it's own evaluator, it has to implement the
-    following properties and methods:
-	(note: An ActionRecord is a namedtuple with the fields conjunction (the
-    name of the conjunction as a string) and action (the AbstractAction queued
-    with this conjunction. )
-    * *allowed_conjunctions* this property is a list of strings determining
-      all possible conjunctions. (The default conjunction "" should be included)
-    * *accept(action_records, new_action_record )*: whenever a new
-      action_record is queued this method is called to determine if it is
-      accepted. if the method returns None, the record is accepted. If the
-      method returns a string the string is used as error message for the
-      RuleSetBuildError.
-	  Implementors should note that this method is called even on the firs
-      action during initialization of ActionSet. Hereby the empty string "" is
-      used as an conjunction.
-	* *evaluate(action_records, input_)*: this method is called when an
-      ActionSet is applied to an input.
-	
-
 
 **Classes and Functions**
 
@@ -130,7 +109,29 @@ def fizzbuzz_rules0():
     reverse order) until one
     perfoms an action. Their result is returned.
 
-* *Evaluator* : Ruleta has an build-in evaluator which allows the conjunctions
+**Advanced Interfaces**
+  * *Evaluator* The evaluator determines how action sets are evaluated.
+    if the user wants to supply it's own evaluator, it has to implement the
+    following properties and methods:
+	(note: An ActionRecord is a namedtuple with the fields conjunction (the
+    name of the conjunction as a string) and action (the AbstractAction queued
+    with this conjunction. )
+    * *allowed_conjunctions* this property is a list of strings determining
+      all possible conjunctions. (The default conjunction "" should be included)
+    * *accept(action_records, new_action_record )*: whenever a new
+      action_record is queued this method is called to determine if it is
+      accepted. if the method returns None, the record is accepted. If the
+      method returns a string the string is used as error message for the
+      RuleSetBuildError.
+	  Implementors should note that this method is called even on the firs
+      action during initialization of ActionSet. Hereby the empty string "" is
+      used as an conjunction.
+	* *evaluate(action_records, input_)*: this method is called when an
+      ActionSet is applied to an input.
+	
+
+**AdvancedClasses**
+* *Evaluator* : Ruleta has an build-in evaluator which allows the ActionSet the conjunctions
   listed above. 
 * *default_evaluator* : a usersupplied evaluator can either be supplied on a
   per ActionSet basis or globally by setting ruleta.evaluation_strategies.default_evaluator
@@ -140,7 +141,7 @@ def fizzbuzz_rules0():
      It indicates that an action did not actually perform an action.
      It is detected and used by several Actionset specializations.
    * *ActionSetBuildError*: This error is thrown while *building* an
-     actionset. To indicate that the actionset was illegally build.
+     actionset. To indicate that the actionset was build incorrectly (presumably the conjunctions can't be used in this order.).
 
 	
 	
