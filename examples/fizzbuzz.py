@@ -32,7 +32,7 @@ def fizzbuzz_rules0():
     """
     fizzbuzz; for each number:
     - return the number as string
-    - except if the number is divisible_by 3 return "Fizz"
+    - but if the number is divisible_by 3 return "Fizz"
     - but if the number is divisible_by 5 return "Buzz"
     - but if the number is divisible_by 3 and 5 return "FizzBuzz"
     """  
@@ -64,15 +64,12 @@ def fizzbuzz_rules2():
     - if the number is divisible_by 5 return "Buzz"
     - otherwise return the number as string
     """  
-    return ActionSet(Rule(divisible_by(3), ActionSet(Rule(divisible_by(5), value("FizzBuzz")))
-                                                    .otherwise(value("Fizz"))))\
+    return ActionSet(Rule(divisible_by(3), 
+                                    ActionSet(Rule(divisible_by(5), value("FizzBuzz")))
+                                    .otherwise(value("Fizz"))))\
                      .otherwise(Rule(divisible_by(5), value("Buzz")))\
                      .otherwise(stringify)
 
-if __name__ == "__main__":
-    fizzbuzz = fizzbuzz_rules0()
-    for i in range(1,101):
-        print(fizzbuzz(i))
 
 
 class TestFizzbuzz(ut.TestCase):

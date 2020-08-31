@@ -1,22 +1,9 @@
 """
+An implementation for the gilded rose kata as I understand it.
 
-  
- Basic Degradiation Rules:
-  - every day the quality degrades by 1
-  - And  if the sellby_date has passed, quality degrades twice  as fast
-  - And if the item is conjured the quality degrades twice as fast
- - But "Aged Brie" increases in Quality the older it gets
- - But "Sulfuras" never decreases in Quality
- - But if the item is "Backstage passes" the quality changes as follows:
-        - quality always increases by 1
-        - but if the sellby_date 10 days or less away , quality increases by 2
-        - but if the sellby_date 5 days or less away , quality increases by 3
-        - but if the sellby_date has passed, the quality is and stays 0.
-
- 
+  https://github.com/NotMyself/GildedRose
 
 
- 
 """
 from collections import namedtuple
 import unittest as ut
@@ -79,16 +66,59 @@ def compare_quality(condition ):
 
 
 # Rulesets 
+"""
+The rules as written:
+    `
+  All items have a SellIn value which denotes the number of days we have to sell the item
+  All items have a Quality value which denotes how valuable the item is
+  At the end of each day our system lowers both values for every item
 
+   Once the sell by date has passed, Quality degrades twice as fast
+   The Quality of an item is never negative
+   "Aged Brie" actually increases in Quality the older it gets
+   The Quality of an item is never more than 50
+   "Sulfuras", being a legendary item, never has to be sold or decreases in Quality
+   "Backstage passes", like aged brie, increases in Quality as it's SellIn value approaches; Quality increases by 2 when there are 10 days or less and by 3 when there are 5 days or less but Quality drops to 0 after the concert
+'
+
+
+
+Just for clarification, an item can never have its Quality increase above 50, however "Sulfuras" is a legendary item and as such its Quality is 80 and it never alters.
+
+"""
+
+"""
+The Rules as I understand them
+
+The basic rules for the quality of all items are:
+    every day the quality degrades by 1
+    if the sellby date has passed the degradiation is doubled
+    also if the item is conjured the degradiation is doubled also/again
+
+but when the item is "Sulfuras" then it quality never changes
+but also when the item is "Aged Brie" then the quality increases by every day by 1.
+but also when the item is  "Backstage Passes" the the quality changes according to the following rules:
+     the quality increases by 1 every day
+     but if the sell by date is 10 days or less away, the quality increases by 2 each day
+     but if the sell by date is even 5 days or less away the quality increases by 3 each day instead
+     if the sellby date has passed, the quality is zero and never changes
+
+
+independent of above rules the quality of an item would be below zero it is zero instead.
+but if the items quality would be above 50 it is 50 instead.
+but if the item is "Sulfuras" the quality is always 80  
+
+""" 
+
+basic_degradiation_rules= ActionSet(set_quality_change(-1))\
+                             .also(Rule(sellby_date_passed, double_degradation))\
+                             .also(Rule(is_item_conjured, double_degradation))
 backstage_pass_rules = ActionSet(set_quality_change(+1))\
                            .but(Rule( days_until_sellby(leq(10) ), set_quality_change(+2)))\
                            .but(Rule( days_until_sellby(leq(5) ), set_quality_change(+3)))\
                            .but(Rule( sellby_date_passed, ALSO(set_quality(0),set_quality_change(0))))
 
 
-basic_degradiation_rules= ActionSet(set_quality_change(-1))\
-                             .also(Rule(sellby_date_passed, double_degradation))\
-                             .also(Rule(is_item_conjured, double_degradation))
 
 extended_degradiation_rules = ActionSet(basic_degradiation_rules)\
                                   .but(Rule(is_aged_brie, set_quality_change(+1)) )\
@@ -100,8 +130,8 @@ extended_degradiation_rules = ActionSet(basic_degradiation_rules)\
 
 bracketing_rules = ActionSet(do_nothing)\
                        .but(Rule(compare_quality(leq(0)), set_quality(0)))\
-                       .but(ActionSet(Rule(compare_quality(geq(50) ), set_quality(50)))
-                                 .but(Rule(is_sulfuras, set_quality(80))))
+                       .but(ActionSet(Rule(compare_quality(geq(50) ), set_quality(50))))
+                       .but(Rule(is_sulfuras, set_quality(80)))
                                        
 
 
