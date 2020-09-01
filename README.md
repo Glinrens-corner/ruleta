@@ -106,33 +106,32 @@ def value(val):
     raise NoActionException). As second argument an evaluator can be
     supplied. If no evaluator is supplied (or the evaluator is None, the
     ruleta.evaluation_strategies.default\_evaluator is used.
-	It is also the basic action to which all other conjunctions are chained.
-	E.g. ``` ActionSet(stringify) ```
-	* **conjunctions** The conjunctions an action set supports and their
-      semantics are determined by the evaluator. The following are supplied by
-      the built-in evaluator. 
+    It is also the basic action to which all other conjunctions are chained. 
+    E.g. ``` ActionSet(stringify) ```
+    * **conjunctions** The conjunctions an action set supports and their
+          semantics are determined by the evaluator. The following are supplied by
+          the built-in evaluator. 
 	  (Note: all conjunctions (except the default conjunction "") take the
-      form of methods on the BaseActionSet
-      ```.conjunction(action)->BaseActionSet ```
+          form of methods on the BaseActionSet
+          ```.conjunction(action)->BaseActionSet ```
 	  (Note: the build-in evaluator only allows allows conjunctions of the
-      same type to be chained. (except the default conjunction ""; all other
-      conjunctions can be chained after the default conjunction) )
-	* *but* adding another action via the ```.but(action)``` method results in
-	an exception to earlier rules.
-	E.g.: in the fizzbuzz_rules0 example for 15 *only* the last rule is executed.
-	E.g. see the examples/fizzbuzz.py
-        * *also*:  The also conjunction is similar to the  ALSO  combinator 
-        it applies the actions in order. Each to the output of the previous
-        action. 
-	Different from ALSO actions queued by also  
- 	are  guraranted to execute from first to last and actions
-        which raise an NoActionException are simply skipped (which may lead to all
-        actions being skipped). 
-	If no Action is executed an NoActionException is raised.
-	* *otherwise*: actions chained by otherwise are the similar to
-        those chained by but. But the actions are tested in order (instead of
-        reverse order) until one
-        perfoms an action. Their result is returned.
+          same type to be chained. (except the default conjunction ""; all other
+          conjunctions can be chained after the default conjunction) )
+    * *but*: adding another action via the ```.but(action)``` method results in an exception to earlier rules.
+           E.g.: in the fizzbuzz_rules0 example for 15 *only* the last rule is executed.
+           E.g. see the examples/fizzbuzz.py
+    * *also*:  The also conjunction is similar to the  ALSO  combinator 
+          it applies the actions in order. Each to the output of the previous
+          action. 
+	  Different from ALSO actions queued by also  
+ 	  are  guraranted to execute from first to last and actions
+          which raise an NoActionException are simply skipped (which may lead to all
+          actions being skipped). 
+	  If no Action is executed an NoActionException is raised.
+    * *otherwise*: actions chained by otherwise are the similar to
+          those chained by but. But the actions are tested in order (instead of
+          reverse order) until one
+          perfoms an action. Their result is returned.
 
 **Advanced Interfaces**
   * *Evaluator* The evaluator determines how action sets are evaluated.
