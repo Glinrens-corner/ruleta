@@ -1,5 +1,6 @@
 # Ruleta
 
+**Introduction**
 Ruleta is a minimalist Python Rules framework based on functional programming 
 principles.
 
@@ -23,6 +24,31 @@ def fizzbuzz_rules0():
                  .but(Rule(AND(divisible_by(3),
                                 divisible_by(5) ), value("FizzBuzz")))
 ```
+# How To Use Ruleta
+ 1. Rewrite your spec into an unambiguous form of (possibly nested) bullet points of actions or rules (ruleta calls an action that only applies if a condition is met a rule).
+    These rules can be joined by conjunctions: 
+    * *but* this rule/action is an exception to all previous rules/actions.
+    * *also* apply this action after previous actions.
+    * *otherwise* apply this rule/action only if none of the previous rules applies.
+ 2. implement all conditions and actions you need.(see also interfaces)
+    * conditions and actions should be stateless.
+    * actions are more composable if they return the same type they consume.
+    * actions are easier to reason about if they return a new instance instead of mutating the input.
+    * actions and conditions can often be implemented efficiently via factory functions. E.g.:
+```
+# a condition factory
+def divisible_by(x):
+    return lambda val: val%x == 0
+``` 
+ 
+```
+# a action factory
+# it's intended use breaks the rule about composability
+#   but for fizzbuzz composability  is not really needed.
+def value(val):
+    return lambda _: value 
+```
+ 3. compose them according to your spec.
 
 # Concepts
 **Interfaces**
@@ -37,8 +63,7 @@ def fizzbuzz_rules0():
   never raises a NoActionException.
 	
 * *Condition*: A Condition is a callable which transforms some input into a
-  bool. It is formally a subtype of UnconditionalAction this is currently
-  never made use of.
+  bool. It is formally a subtype of UnconditionalAction.
 
 **Classes and Functions**
 
@@ -96,18 +121,18 @@ def fizzbuzz_rules0():
 	an exception to earlier rules.
 	E.g.: in the fizzbuzz_rules0 example for 15 *only* the last rule is executed.
 	E.g. see the examples/fizzbuzz.py
-  * *also*:  The also conjunction is similar to the  ALSO  combinator 
-    it applies the actions in order. Each to the output of the previous
-    action. 
+        * *also*:  The also conjunction is similar to the  ALSO  combinator 
+        it applies the actions in order. Each to the output of the previous
+        action. 
 	Different from ALSO actions queued by also  
-	are  guraranted to execute from first to last and actions
-    which raise an NoActionException are simply skipped (which may lead to all
-    actions being skipped). 
+ 	are  guraranted to execute from first to last and actions
+        which raise an NoActionException are simply skipped (which may lead to all
+        actions being skipped). 
 	If no Action is executed an NoActionException is raised.
 	* *otherwise*: actions chained by otherwise are the similar to
-    those chained by but. But the actions are tested in order (instead of
-    reverse order) until one
-    perfoms an action. Their result is returned.
+        those chained by but. But the actions are tested in order (instead of
+        reverse order) until one
+        perfoms an action. Their result is returned.
 
 **Advanced Interfaces**
   * *Evaluator* The evaluator determines how action sets are evaluated.
