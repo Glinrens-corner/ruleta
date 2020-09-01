@@ -141,36 +141,40 @@ def value(val):
           perfoms an action. Their result is returned.
 
 **Advanced Interfaces**
-  * *Evaluator* The evaluator determines how action sets are evaluated.
+  * *IEvaluator* The evaluator determines how action sets are evaluated.
     if the user wants to supply it's own evaluator, it has to implement the
     following properties and methods:
-	(note: An ActionRecord is a namedtuple with the fields conjunction (the
-    name of the conjunction as a string) and action (the AbstractAction queued
-    with this conjunction. )
+	
     * *allowed_conjunctions* this property is a list of strings determining
-      all possible conjunctions. (The default conjunction "" should be included)
+      all conjunctions this evaluator possibly allows. (The default conjunction "" should be included)
     * *accept(action_records, new_action_record )*: whenever a new
       action_record is queued this method is called to determine if it is
       accepted. if the method returns None, the record is accepted. If the
       method returns a string the string is used as error message for the
-      RuleSetBuildError.
-	  Implementors should note that this method is called even on the firs
-      action during initialization of ActionSet. Hereby the empty string "" is
-      used as an conjunction.
-	* *evaluate(action_records, input_)*: this method is called when an
+      ActionSetBuildError.
+      *action_records* is the *list* of all previous set ActionRecords including the initial action record.
+      *new_action_record* is the record that is tried to be newly added.
+       Implementors should note that this method is called even on the first
+       action during initialization of ActionSet. At that point *action_records* is an empty list and the empty string "" is
+       used as an conjunction in *new_action_record*.
+    * *evaluate(action_records, input_)*: this method is called when an
       ActionSet is applied to an input.
 	
 
 **AdvancedClasses**
 * *Evaluator* : Ruleta has an build-in evaluator which allows the ActionSet the conjunctions
   listed above. 
+* *ActionRecord*: An *ActionRecord* records an action (Duh).
+   it is a namedtuple with the fields 
+    *conjunction* (the name of the conjunction as a string) and 
+    *action (the AbstractAction queue with this conjunction. ) 
 * *default_evaluator* : a usersupplied evaluator can either be supplied on a
   per ActionSet basis or globally by setting ruleta.evaluation_strategies.default_evaluator
 * *Exceptions*:Exceptions live in ruleta.exceptions and are not exported by
   default from the ruleta package.
    * *NoActionException*: This is an exception intended for internal use.
      It indicates that an action did not actually perform an action.
-     It is detected and used by several Actionset specializations.
+     It is detected and usually handled by the evaluator.
    * *ActionSetBuildError*: This error is thrown while *building* an
      actionset. To indicate that the actionset was build incorrectly (presumably the conjunctions can't be used in this order.).
 
