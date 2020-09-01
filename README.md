@@ -25,6 +25,13 @@ def fizzbuzz_rules0():
                                 divisible_by(5) ), value("FizzBuzz")))
 ```
 # How To Use Ruleta
+**Installation**
+Currently Ruleta is only available as github repository. 
+so use ```git clone https://github.com/Glinrens-corner/ruleta.git somewhere/in/your/PYTHONPATH```
+or if you only want to use it in a specific project ``` git submodule add https://github.com/Glinrens-corner/ruleta.git somewhere/in/your/PYTHONPATH```
+Ruleta has no other package dependencies (we aren't npm).
+
+**Usage**
  1. Rewrite your spec into an unambiguous form of (possibly nested) bullet points of actions or rules (ruleta calls an action that only applies if a condition is met a rule).
     These rules can be joined by conjunctions: 
     * *but* this rule/action is an exception to all previous rules/actions.
