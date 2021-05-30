@@ -12,7 +12,8 @@ def ANY(*conditions):
 def OR(first, second):
     return ANY(first,second)
 
-
+def NOT(condition):
+    return lambda input_: not condition(input_)
 
 
 def ALSO(*actions):
